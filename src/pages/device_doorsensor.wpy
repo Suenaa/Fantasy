@@ -1,0 +1,170 @@
+<style>
+  page {
+    background-color: #F8F8F8;
+  }
+
+  .item {
+    display: flex;
+    width: 100%;
+    height: 100rpx;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e5e5e5;
+  }
+
+  .icon {
+    height: 60rpx;
+    width: 60rpx;
+    margin-left: 30rpx;
+  }
+
+  .cell {
+    display: flex;
+    align-items: center;
+  }
+
+  .icon-right {
+    color: #cbcbd0;
+    margin-right: 30rpx;
+    flex: 0 0 26rpx;
+  }
+
+  .text-h2 {
+    color: #b5b5b5;
+    margin-right: 30rpx;
+  }
+
+  .text-h1 {
+    margin-left: 32rpx;
+  }
+
+  .text-h3 {
+    font-size: 100rpx;
+  }
+
+  .header {
+    width: 100%;
+    background-color: #ffffff;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+  }
+
+  .item-top {
+    border-top: 1px solid #e5e5e5;
+  }
+
+  .device-light {
+    width: 100%;
+    height: 758rpx;
+  }
+</style>
+<template>
+  <view>
+    <view class="header">
+      <image class="device-light" src="images/doorsensor.jpg"></image>
+    </view>
+    <view class="item item-top">
+      <view class="cell">
+        <image class="icon" src="https://png.icons8.com/ios/1600/device-manager.png"></image>
+        <text class="text-h1">名称：</text>
+      </view>
+      <text class="text-h2">{{device_name}}</text>
+    </view>
+    <view class="item">
+      <view class="cell">
+        <image class="icon" src="https://png.icons8.com/material/1600/squared-menu.png"></image>
+        <text class="text-h1">状态:</text>
+      </view>
+      <text class="text-h2">{{state}}</text>
+    </view>
+    <view class="item">
+      <view class="cell">
+        <image class="icon" src="https://png.icons8.com/ios-glyphs/1600/link.png"></image>
+        <text class="text-h1">连接情况:</text>
+      </view>
+      <text class="text-h2">{{islink}}</text>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '设备详情'
+    }
+    components = {
+    }
+
+    data = {
+      entity_id: 'binary_sensor.door_window_sensor_158d000237ed04',
+      device_name: '门窗传感器',
+      state: '未知',
+      islink: '未连接',
+      timer: null
+    }
+
+    computed = {
+    }
+
+    methods = {
+    }
+
+    events = {
+    }
+
+    onLoad() {
+      let self = this
+      wepy.request({
+        url: `https://baidusmarthomeforff.cn/apiv1/devices/${this.entity_id}`,
+        method: 'GET',
+        header: {
+          'content-type': 'application/json',
+          'Wx-Session-Token': '*'
+        },
+        success: function(res) {
+          self.state = res.data.data.state
+          self.islink = '已连接'
+          self.$apply()
+          console.log(`state: ${res.data.data.state}, ${self.state}`)
+        },
+        fail: function(res) {
+          self.state = '未知'
+          self.islink = '未连接'
+          self.$apply()
+          console.log('failed')
+        }
+      })
+
+      self.timer = setInterval(function () {
+        wepy.request({
+          url: `https://baidusmarthomeforff.cn/apiv1/devices/${self.entity_id}`,
+          method: 'GET',
+          header: {
+            'content-type': 'application/json',
+            'Wx-Session-Token': '*'
+          },
+          success: function(res) {
+            self.state = res.data.data.state
+            self.$apply()
+            console.log(`state: ${res.data.data.state}, ${self.state}`)
+          },
+          fail: function(res) {
+            self.state = '未知'
+            self.islink = '未连接'
+            self.$apply()
+            console.log('failed')
+          }
+        })
+      }, 3000)
+    }
+
+    onUnload() {
+      let self = this
+      clearInterval(self.timer)
+    }
+  }
+</script>

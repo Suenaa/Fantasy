@@ -1,0 +1,74 @@
+<style type="less">
+  .btn {
+    width: 28%;
+    height: 200rpx;
+    border: 3rpx solid #bfbfbf;
+    border-radius: 16px;
+    position: relative;
+    float: left;
+    text-align: center;
+    margin-left: 3%;
+    margin-right: 0%;
+    margin-bottom: 2%;
+  }
+  .img {
+    width: 40%;
+    height: 40%;
+    position: absolute;
+    left: 0;
+    top: -10%;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+  }
+  .device_name {
+    position: absolute;
+    top: 72%;
+    left: 0;
+    right: 0;
+    font-size: 85%;
+    /*font-weight: 800;*/
+    color: #3f3f3f
+  }
+</style>
+<template>
+  <view class="btn">
+    <view class="device" @tap="tap" >
+        <image class="img" src="{{ditem.img_url}}"></image>
+        <span class="device_name">{{ditem.device_name}}</span>
+       </view>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+
+  export default class DeviceItem extends wepy.component {
+    props = {
+      ditem: {
+        img_url: {
+          type: String,
+          default: 'images/default_device_img.png'
+        },
+        device_name: {
+          type: String,
+          default: 'unknown device'
+        }
+      }
+      // img_url: {
+      //   type: String,
+      //   default: ''
+      // },
+      // device_name: {
+      //   type: String,
+      //   default: 'unknown'
+      // }
+    }
+
+    methods = {
+      tap () {
+        // TODO: tap device
+        console.log(`taped ${this.device.device_name} device, image url is ${this.device.img_url}`)
+      }
+    }
+  }
+</script>

@@ -1,0 +1,102 @@
+<style>
+.room_buttons {
+  display: inline-block;
+  height: auto;width: 100%;
+}
+.btn {
+  width: 40%;
+  height: 250rpx;
+  border: 5rpx solid #bfbfbf;
+  border-radius: 16px;
+  position: relative;
+  float: left;
+  text-align: center;
+  margin-left: 4%;
+  margin-right: 4%;
+  margin-bottom: 3%;
+}
+.img {
+  width: 35%;
+  height: 35%;
+  position: absolute;
+  left: 0;
+  top: -20%;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+}
+.room_name {
+  position: relative;
+  top: 60%;
+  font-size: 90%;
+  font-weight: 800;
+  color: #3f3f3f
+}
+.add_img {
+  width: 70rpx;
+  height: 70rpx;
+  vertical-align: middle;
+  margin-right: 20rpx;
+}
+.add_room {
+  position: static;
+  margin-left: 8%;
+  margin-top: 15%;
+  font-size: 90%;
+  font-weight: 800;
+}
+
+</style>
+
+<template>
+  <div class="room_buttons">
+
+     <block wx:for-items="{{rooms}}" wx:for-index="index" wx:for-item="item" wx:key="id">
+       <view class="btn" @tap="tap({{item.name}})" >
+        <image class="img" src="{{item.img_url}}"></image>
+        <span class="room_name">{{item.name}}</span>
+       </view>
+     </block>
+  </div>
+  <div class="add_room" @tap="add_room">
+    <image class="add_img" src="images/add_btn.png"></image>
+    <span>添加房间</span>
+  </div>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  // import Toast from 'wepy-com-toast'
+
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '房间'
+    }
+    data = {
+      rooms: [
+        {name: '卧室', img_url: 'images/bedroom.png'},
+        {name: '厨房', img_url: 'images/kitchen.png'},
+        {name: '洗手间', img_url: 'images/bathroom.png'},
+        {name: '餐厅', img_url: 'images/dining_room.png'},
+        {name: '卧室', img_url: 'images/bedroom.png'}
+      ]
+    };
+    methods = {
+      tap(roomName) {
+        console.log(roomName)
+        this.$navigate('./roomdetail', {title: roomName})
+      },
+      add_room() {
+        this.$navigate('./addnewroom')
+      }
+    };
+  
+    onLoad(params) {
+      if (params.room_name) {
+        console.log(params.room_name)
+        this.rooms.push({name: params.room_name, img_url: 'images/bedroom.png'})
+        this.$apply()
+      }
+    }
+  }
+</script>

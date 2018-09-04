@@ -1,0 +1,224 @@
+<style lang="less">
+  page {
+    width: 100%;
+    background-image: url('http://pic.52112.com/171201/Green_ombre_watercolor/68URr7tQcY.jpg');
+    background-size: cover;
+    webkit-backdrop-filter: 0.5;
+  }
+  .container {
+    width:100%;
+    height:100%;
+    overflow:hidden;
+  }
+  .recordContent{
+    margin-top:100rpx;
+    display:block;
+    text-align: center;
+  }
+  .recordBtn {
+    position:fixed;
+    bottom:50rpx;
+    width: 120rpx;
+    height: 120rpx;
+    margin: 20rpx auto;
+    border-radius: 50%;
+    overflow: hidden;
+    text-align:center;
+    line-height: 20px;
+    background-color: rgba(255, 255, 255, 0);
+    text-align: center;
+    border: 1px solid rgba(187, 187, 187, 1);
+  }
+  .microphoneIcon {
+    text-align: center;
+    width: 80rpx;
+    height: 80rpx;
+    border-radius: 50%;
+    margin-top:20rpx;
+    margin-left:-12rpx;
+  }
+
+  .yuyin-box {
+    margin-top:100rpx;
+    text-align:center;
+    width: 400rpx;
+    height: 80rpx;
+    line-height:80rpx;
+  }
+</style>
+<template>
+  <view class="container">
+    <button type='default' bindtouchstart='startrecorderHandle' bindtouchend="sendrecorderHandle" class='recordBtn'>
+      <image src="images/microphone.png" class="microphoneIcon"></image>
+    </button>
+    <view class="recordContent">
+      你说的话是:
+      <view>
+        {{msg}}
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import testMixin from '../mixins/test'
+  const recorderManager = wepy.getRecorderManager()
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '语音'
+    }
+
+    mixins = [testMixin]
+
+    data = {
+      msg: '',
+      lightState: ''
+    }
+    methods = {
+      // 按下按钮的时候触发
+      startrecorderHandle() {
+        // 开始录音
+        // console.log('start recorder')
+        const options = {
+          duration: 10000, // 指定录音的时长，单位 ms
+          sampleRate: 16000, // 采样率
+          numberOfChannels: 1, // 录音通道数
+          encodeBitRate: 96000, // 编码码率
+          format: 'mp3', // 音频格式，有效值 aac/mp3
+          frameSize: 50 // 指定帧大小，单位 KB
+        }
+        recorderManager.start(options)
+        recorderManager.onStart(res => {
+          console.log('start recorder')
+        })
+        recorderManager.onError(res => {
+          console.log('error', res)
+        })
+      },
+      // 松开按钮的时候触发-发送录音
+      sendrecorderHandle() {
+        // 结束录音
+        recorderManager.stop()
+        recorderManager.onStop(res => {
+          // 获取文件路径-提交到后台-后台发送到百度
+          console.log('stop record , record path: ' + res.tempFilePath)
+          this.sendRecord(res.tempFilePath)
+        })
+      }
+    }
+    sendRecord(src) {
+      let that = this
+      setTimeout(function () {
+        wepy.uploadFile({
+          url: 'https://baidusmarthomeforff.cn/apiv1/voice-control',
+          filePath: src,
+          name: 'file',
+          header: {
+            'content-type': 'multipart/form-data',
+            'Wx-Session-Token': '*'
+          },
+          success: function (res) {
+            // console.log(`res`)
+            console.log(res)
+            var str = res.data
+            var data = JSON.parse(str)
+            console.log('data')
+            console.log(data)
+            if (res.statusCode === 200) {
+              let msgStr = data.data.text
+              that.msg = msgStr.slice(0, msgStr.length - 1)
+              wepy.showToast({
+                title: '操作成功!',
+                icon: 'success',
+                duration: 2000
+              })
+              that.$apply()
+            } else if (res.statusCode === 403) {
+              let msgStr = data.data.text
+              that.msg = msgStr.slice(0, msgStr.length - 1)
+              that.$apply()
+            } else if (res.statusCode === 500) {
+              wepy.showModal({
+                title: '提示',
+                content: '语音质量不佳',
+                showCancel: false,
+                success: function(res) {
+                }
+              })
+            }
+          },
+          fail: function (res) {
+            console.log(res)
+            wepy.showModal({
+              title: '提示',
+              content: '网络请求失败，请确保网络是否正常',
+              showCancel: false,
+              success: function (res) {
+
+              }
+            })
+            // wepy.hideToast()
+          }
+        })
+      }, 1000)
+    }
+
+    getLightState () {
+      let that = this
+      wepy.request({
+        url: 'https://baidusmarthomeforff.cn/apiv1/devices/light.gateway_light_7c49eb179f35',
+        method: 'GET',
+        header: {
+          'content-type': 'application/json',
+          'Wx-Session-Token': '*'
+        },
+        success: function(res) {
+          // console.log(`res.statusCode:${res.statusCode}`)
+          // console.log(res)
+          if (res.statusCode === 200) {
+            // console.log(res.data)
+            console.log(`getLightState light state:${res.data.data.state}`)
+            that.lightState = res.data.data.state
+            console.log(`that.lightState:${that.lightState}`)
+          } else if (res.statusCode === 403) {
+            console.log(res.statusCode)
+          } else if (res.statusCode === 404) {
+            console.log(res.statusCode)
+          }
+          that.$apply()
+        },
+        fail: function(res) {
+          console.log('failed!')
+          // wepy.hideToast()
+          wepy.showToast({
+            title: '连接网络失败',
+            icon: 'loading',
+            duration: 3000
+          })
+        }
+      })
+    }
+    onLoad() {
+      let that = this
+      wepy.authorize({
+        scope: 'record'
+      })
+
+      that.getLightState()
+      console.log('microphone onload')
+    }
+    onShow() {
+      console.log('microphone is on show')
+    }
+    onReady() {
+      console.log('microphone is on ready')
+    }
+    onHide() {
+      console.log('microphone is on hide')
+    }
+    onUnload() {
+      console.log('microphone is on unload')
+    }
+  }
+</script>

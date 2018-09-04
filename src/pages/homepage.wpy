@@ -1,0 +1,233 @@
+<style lang="less">
+page {
+  width: 100%;
+  background-image: url('http://pic.52112.com/171201/Green_ombre_watercolor/68URr7tQcY.jpg');
+  background-size: cover;
+  webkit-backdrop-filter: 0.5;
+}
+.weather{
+  width: 100%;
+  height: 300rpx;
+  background-size: cover;
+  -webkit-backdrop-filter: 0.7;
+  right:0rpx;
+  opacity: 0.75;
+}
+.content {
+  opacity: 1;
+}
+.position{
+  text-align: right;
+  font-size: 13pt;
+  padding-right: 20rpx;
+  color:  WhiteSmoke;
+}
+.temperature, .state{
+  padding-left: 30rpx;
+  font-weight: bolder;
+  color:  White;
+}
+.temperature{
+  padding-top:100rpx;
+}
+
+.device_buttons {
+  display: inline-block;
+  height: auto;
+  width: 100%;
+  margin-left: 0.5%;
+}
+.btn {
+  width: 160rpx;
+  height: 160rpx;
+  border: 5rpx solid #bfbfbf;
+  border-radius: 16px;
+  position: relative;
+  float: left;
+  text-align: center;
+  margin-left: 0.5%;
+  margin-right: 0.5%;
+  margin-bottom: 2%;
+  background-color: white;
+}
+.dev_img {
+  width: 90%;
+  height: 89%;
+  border-radius: 50%;
+  position: absolute;
+  left: 0;
+  top: -10%;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+}
+.dev_name {
+  position: relative;
+  top: 70%;
+  font-size: 70%;
+  font-weight: 800;
+  color: #3f3f3f;
+  margin-top: 2%;
+}
+
+.weui-cells__title {
+  font-size: 17px;
+}
+
+</style>
+
+
+<template>
+    <!--pages/homepage/homepage.wxml-->
+<view class="page" style="height:{{windowHeight}}; width:{{windowWidth}}">
+  <view class="weather" style="background-image:{{weatherImg}}">
+      <view class="content">
+      <view class="temperature">{{temperature}}℃</view>
+      <view class="state">{{state}}</view>
+      <view class="position">湿度 {{humidity}}%   | 光强 {{illuminance}}lm</view>
+    </view>
+  </view>
+
+  <view class="weui-cells__title" @tap="tapToDevice('./devicelist')">常用设备</view>
+  <view class="device_buttons weui-cell">
+     <block wx:for-items="{{devices}}" wx:for-index="index" wx:for-item="item" wx:key="id">
+       <view class="btn" @tap="tapToDevice({{item.nextPage}})" >
+        <image class="dev_img" src="{{item.deviceImg}}" ></image>
+        <view class="dev_name">{{item.deviceName}}</view>
+       </view>
+     </block>
+  </view>
+
+</view>
+
+</template>
+
+<script>
+    import wepy from 'wepy'
+
+    export default class Homepage extends wepy.page {
+      config = {
+        navigationBarTitleText: '智能家居'
+      }
+
+      data = {
+        temperature: '-',
+        illuminance: '-',
+        humidity: '-',
+        state: '多云',
+        weatherImg: 'url("https://png.pngtree.com/thumb_back/fw800/back_pic/03/56/72/72579eec0361f20.jpg")',
+        devices: []
+      }
+      methods = {
+        tapToDevice(url) {
+          console.log('nextPage', url)
+          this.$navigate(url, {title: '设备'})
+        }
+      }
+
+      onLoad() {
+        console.log('homepage onload')
+        var that = this
+        wx.getSystemInfo({
+          success: function (res) {
+            that.setData({
+              windowWidth: res.windowWidth + 'px',
+              windowHeight: res.windowHeight + 'px'
+            })
+          }
+        })
+      }
+
+      onShow() {
+        var that = this
+        /** console.log('homepage is on show') **/
+        wepy.request({
+          url: 'https://baidusmarthomeforff.cn/apiv1/devices',
+          method: 'GET',
+          header: {
+            'Wx-Session-Token': '*',
+            'content-type': 'application/json'
+          },
+          success: function(res) {
+            var list = res.data.data.deviceList
+            console.log('deviceList', list)
+            /** prepare the name and img list **/
+            var detail = [
+              {key: 'light', frequence: '0', deviceName: '智能网关', deviceImg: '../img/mi.jpg', nextPage: './device_light'},
+              {key: 'sensor', frequence: '0', deviceName: '温湿度计', deviceImg: 'https://free.modao.cc/uploads3/images/1945/19454899/thumb_raw_1524719671.png', nextPage: './device_sensor'},
+              {key: 'binary_sensor', frequence: '0', deviceName: '门窗传感器', deviceImg: 'https://free.modao.cc/uploads3/images/1945/19454911/thumb_raw_1524719694.png', nextPage: './device_sensor'},
+              {key: 'switches', frequence: '0', deviceName: '智能插座', deviceImg: 'https://free.modao.cc/uploads3/images/1945/19454844/thumb_raw_1524719555.png', nextPage: './device_light'}
+            ]
+            var len = detail.length * 0.5
+
+            /** set data **/
+            var param = {}
+            var string = 'temperature'
+            var string2 = 'humidity'
+            var string3 = 'illuminance'
+            var flag = 0
+            for (var i = 1; i < list.length; i++) {
+              if (list[i].attributes.device_class === 'humidity') {
+                that.humidity = list[i].state
+                console.log('humidity')
+                flag++
+              }
+              if (list[i].attributes.device_class === 'temperature') {
+                that.temperature = list[i].state
+                console.log('temperature')
+                flag++
+              }
+              if (list[i].attributes.device_class === 'illuminance') {
+                that.illuminance = list[i].state
+                console.log('illuminance')
+                flag++
+              }
+              if (flag > 2) {
+                break
+              }
+            }
+            for (var index = 0; index < len; index++) {
+              string = 'devices[' + index + '].deviceName'
+              string2 = 'devices[' + index + '].deviceImg'
+              string3 = 'devices[' + index + '].nextPage'
+              param[string] = detail[index].deviceName
+              that.setData(param)
+              param[string2] = detail[index].deviceImg
+              that.setData(param)
+              param[string3] = detail[index].nextPage
+              that.setData(param)
+            }
+            string = 'devices[' + len + '].deviceName'
+            string2 = 'devices[' + len + '].deviceImg'
+            string3 = 'devices[' + len + '].nextPage'
+            param[string] = '所有设备'
+            that.setData(param)
+            param[string2] = 'https://png.icons8.com/small/40/666666/more.png'
+            that.setData(param)
+            param[string3] = './devicelist'
+            that.setData(param)
+
+
+            if (list[1].state === 'below_horizon') {
+              string = 'weatherImg'
+              param[string] = 'url("https://ak9.picdn.net/shutterstock/videos/743689/thumb/1.jpg")'
+              that.setData(param)
+            }
+            /** console.log(that.data.devices) **/
+          },
+          fail: function(res) {
+            console.log('failed to load!')
+          }
+        })
+      }
+      onReady() {
+        /** console.log('homepage is on ready') **/
+      }
+      onHide() {
+        /** console.log('homepage is on hide') ** /
+      }
+      onUnload() {
+        /** console.log('homepage is on unload') **/
+      }
+    }
+</script>

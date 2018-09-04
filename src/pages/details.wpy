@@ -1,0 +1,73 @@
+<style lang="less">
+  page {
+    background-color: #F8F8F8;
+  }
+
+  .item {
+    display: flex;
+    width: 100%;
+    height: 100rpx;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e5e5e5;
+  }
+
+  .icon-right {
+    color: #cbcbd0;
+    margin-right: 30rpx;
+    flex: 0 0 26rpx;
+  }
+
+  .text-h1 {
+    margin-left: 32rpx;
+  }
+
+  .img {
+    width: 100%;
+  }
+</style>
+<template>
+  <view>
+    <image class="img" src="images/ex.png"></image>
+    <view class="item">
+      <text class="text-h1">(User.name)</text>
+      <text class="icon-right">></text>
+    </view>
+    <view class="item">
+      <text class="text-h1">(User.name)</text>
+      <text class="icon-right">></text>
+    </view>
+    <view class="item">
+      <text class="text-h1">(User.name)</text>
+      <text class="icon-right">></text>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '多功能网关'
+    }
+    components = {
+    }
+
+    data = {
+    }
+
+    computed = {
+    }
+
+    methods = {
+    }
+
+    events = {
+    }
+
+    onLoad() {
+    }
+  }
+</script>

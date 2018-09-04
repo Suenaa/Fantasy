@@ -1,0 +1,109 @@
+<style lang="less">
+  page {
+    background-color: #F8F8F8;
+  }
+
+  .item {
+    display: flex;
+    width: 100%;
+    height: 100rpx;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e5e5e5;
+  }
+
+  .iner {
+    display: flex;
+    align-items: center;
+  }
+
+  .icon {
+    height: 60rpx;
+    width: 60rpx;
+    margin-left: 50rpx;
+  }
+
+  .icon-right {
+    color: #cbcbd0;
+    margin-right: 30rpx;
+    flex: 0 0 26rpx;
+  }
+
+  .text-h1 {
+    margin-left: 32rpx;
+  }
+
+  .weui-cell{
+    padding: 12rpx 15rpx 12rpx 35rpx;
+  }
+
+  .weui-cell__bd {
+    padding-left: 20rpx;
+    text-align: left;
+  }
+
+  .list_item {
+    width: 90%;
+    background-color: white;
+    margin-bottom: 5rpx;
+    margin-left: 13rpx;
+    opacity: 0.85;
+  }
+
+  .img {
+    width: 100rpx;
+    height: 100rpx;
+    display: block;
+  }
+</style>
+<template>
+  <view class="container">
+    <view class="weui-cell list_item" wx:for-items="{{devices}}" wx:for-index="index" wx:for-item="item" wx:key="id">
+      <view class="weui-cell__hd" style="position: relative;margin-right: 10px;">
+        <image class="img" src="{{item.deviceImg}}" @tap="tapToDevice({{item.nextPage}})"/>
+      </view>
+      <view class="weui-cell__bd">
+        <view @tap="tapToDevice({{item.nextPage}})">{{item.deviceName}}</view>
+        <view style="font-size: 13px;color: #888888;">{{item.detail}}</view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '管理设备'
+    }
+    components = {
+    }
+
+    data = {
+      devices: [
+        {deviceName: '智能网关', deviceImg: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1530119248548&di=8dbc3e9ee43500fcb3bb94c741315ce7&imgtype=0&src=http%3A%2F%2Fimg13.360buyimg.com%2Fn1%2Fjfs%2Ft3967%2F151%2F1645827853%2F183667%2Fc66789af%2F588190a6N0d9c1cf2.jpg', nextPage: './device_light'},
+        {deviceName: '温湿度计', deviceImg: 'https://free.modao.cc/uploads3/images/1945/19454899/thumb_raw_1524719671.png', nextPage: './device_sensor'},
+        {deviceName: '门窗传感器', deviceImg: 'https://free.modao.cc/uploads3/images/1945/19454911/thumb_raw_1524719694.png', nextPage: './device_doorsensor'},
+        {deviceName: '智能插座', deviceImg: 'https://free.modao.cc/uploads3/images/1945/19454844/thumb_raw_1524719555.png', nextPage: './device_plug'}
+      ]
+    }
+
+    computed = {
+    }
+
+    methods = {
+      tapToDevice(url) {
+        console.log(url)
+        this.$navigate(url, {title: '设备'})
+      }
+    }
+
+    events = {
+    }
+
+    onLoad() {
+    }
+  }
+</script>

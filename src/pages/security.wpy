@@ -1,0 +1,116 @@
+<style lang="less">
+page {
+    background-color: #F8F8F8;
+}
+
+.userinfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.userinfo-avatar {
+  width: 136rpx;
+  height: 136rpx;
+  margin: 20rpx;
+  border-radius: 50%;
+}
+
+.userinfo-nickname {
+  color: #aaa;
+}
+
+.setting-list{
+  display: flex;
+  width: 100%;
+  height: 100rpx;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e5e5;
+  align-items: center;
+}
+
+.iconfont {
+  font-family:"iconfont" !important;
+  font-size:16px;
+  font-style:normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-right:before { content: "\e770"; }
+
+.icon-right {
+  color: #c7c7cc;
+  margin: 0 30rpx; 
+  flex: 0 0 26rpx;
+}
+
+.text-h3 {
+  margin-left: 32rpx;
+}
+
+.setting-list .warp {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.setting-list .warp > switch{
+  margin-right: 30rpx;
+}
+</style>
+<template>
+  <view class="container">
+    <view class="setting-list" style='margin-top: 0rpx;'>
+  <view class='warp'>
+    <text class='text-h3'>设置手势密码</text>
+    <text class='iconfont icon-right'></text>
+  </view>
+</view>
+
+<view class="setting-list" style='margin-top:0px;'>
+  <view class='warp'>
+    <text class='text-h3'>function</text>
+    <text class='iconfont icon-right'></text>
+  </view>
+</view>
+
+<view class="setting-list" style='margin-top: 0px;'>
+  <view class='warp'>
+    <text class='text-h3'>function</text>
+    <text class='iconfont icon-right'></text>
+  </view>
+</view>
+
+
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '安全设置'
+    }
+    components = {
+    }
+
+    data = {
+    }
+
+    computed = {
+    }
+
+    methods = {
+    }
+
+    events = {
+    }
+
+    onLoad() {
+    }
+  }
+</script>

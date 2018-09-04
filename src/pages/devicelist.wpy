@@ -1,0 +1,277 @@
+<style lang="less">
+.navbar {
+    
+    .page__bd{
+        height: 100%;
+    }
+    .page__bd{
+        padding-bottom: 0;
+    }
+    .weui-tab__content{
+        text-align: center;
+    }
+}
+.page {
+  background-image: url('http://pic.52112.com/171201/Green_ombre_watercolor/68URr7tQcY.jpg');
+  background-size: cover;
+  webkit-backdrop-filter: 0.5;
+}
+.weui-navbar__slider {
+  /** margin-left: 80rpx;**/
+}
+
+.weui-search-bar {
+  padding-top:110rpx;
+}
+.searchbar-result{
+    margin-top: 0;
+    font-size: 14px;
+}
+.searchbar-result:before{
+    display: none;
+}
+.weui-cell{
+    padding: 12rpx 15rpx 12rpx 35rpx;
+}
+.weui-cell__bd {
+  padding-left: 20rpx;
+  text-align: left;
+}
+.list_item {
+  width: 90%;
+  background-color: white;
+  margin-bottom: 5rpx;
+  margin-left: 13rpx;
+  opacity: 0.85;
+}
+.below_detail {
+ background-color: #D7D6DC;
+ padding-bottom: 5rpx;
+ padding-top: 5rpx;
+}
+.img {
+  width: 100rpx;
+  height: 100rpx;
+  display: block;
+}
+
+.add_img {
+  width: 70rpx;
+  height: 70rpx;
+  vertical-align: middle;
+  margin-right: 20rpx;
+}
+.add_new {
+  margin-left: 13rpx;
+  margin-top:5rpx;
+  font-size: 90%;
+  font-weight: 800;
+}
+</style>
+
+
+<template>
+<view class = "page"   style="height:{{windowHeight}}; width:{{windowWidth}}"> 
+<view class="navbar">
+    <view class="page__bd">
+        <view class="weui-tab">
+          <view class="weui-navbar">
+              <view wx:for="{{tabs}}" wx:key="*this" id="{{index}}" class="weui-navbar__item {{activeIndex == index ? 'weui-bar__item_on' : ''}}" @tap="tabClick">
+                  <view class="weui-navbar__title">{{item}}</view>
+              </view>
+          </view>
+
+          <view class="weui-search-bar ">
+              <view class="weui-search-bar__form">
+                  <view class="weui-search-bar__box">
+                      <icon class="weui-icon-search_in-box" type="search" size="14"></icon>
+                      <input type="text" class="weui-search-bar__input" placeholder="搜索" value="{{inputVal}}" focus="{{inputShowed}}" bindinput="inputTyping" />
+                      <view class="weui-icon-clear" wx:if="{{inputVal.length > 0}}" bindtap="clearInput">
+                          <icon type="clear" size="14"></icon>
+                      </view>
+                  </view>
+                  <label class="weui-search-bar__label" hidden="{{inputShowed}}" bindtap="showInput">
+                      <icon class="weui-icon-search" type="search" size="14"></icon>
+                      <view class="weui-search-bar__text">输入搜索内容</view>
+                  </label>
+              </view>
+              <view class="weui-search-bar__cancel-btn" hidden="{{!inputShowed}}" bindtap="hideInput">取消</view>
+          </view>
+
+          
+          <view class="weui-tab__content" hidden="{{activeIndex != 0}}">
+            <view class="weui-cell list_item" wx:for-items="{{devices}}" wx:for-index="index" wx:for-item="item" wx:key="id">
+              <view class="weui-cell__hd" style="position: relative;margin-right: 10px;">
+                  <image class="img" src="{{item.deviceImg}}" @tap="tapToDevice({{item.nextPage}})"/>
+              </view>
+              <view class="weui-cell__bd">
+                  <view @tap="tapToDevice({{item.nextPage}})">{{item.deviceName}}</view>
+                  <view style="font-size: 13px;color: #888888;">{{item.detail}}</view>
+              </view>
+            </view>
+            <view class="add_new" @tap="add_device">
+              <image class="add_img" src="images/add_btn.png"></image>
+              <span>添加新设备</span>
+            </view>
+          </view>
+
+          <view class="weui-tab__content" hidden="{{activeIndex != 1}}">
+            <view class="weui-cell list_item" wx:for-items="{{common}}" wx:for-index="index" wx:for-item="item" wx:key="id">
+              <view class="weui-cell__hd" style="position: relative;margin-right: 10px;">
+                  <image class="img" src="{{item.deviceImg}}" @tap="tapToDevice({{item.nextPage}})"/>
+              </view>
+              <view class="weui-cell__bd">
+                  <view @tap="tapToDevice({{item.nextPage}})">{{item.deviceName}}</view>
+                  <view style="font-size: 13px;color: #888888;">{{item.detail}}</view>
+              </view>
+            </view>
+            <view class="add_new" @tap="add_device">
+              <image class="add_img" src="images/add_btn.png"></image>
+              <span>添加新设备</span>
+            </view>
+          </view>
+
+          
+
+        </view>
+      </view>
+    </view>
+</view>
+</view>
+
+</template>
+
+<script>
+    import wepy from 'wepy'
+
+    // const sliderWidth = 100
+
+    export default class DevicesPage extends wepy.page {
+      config = {
+        navigationBarTitleText: '智能家居列表'
+      }
+
+      data = {
+        tabs: ['我的设备', '我经常用'],
+        activeIndex: 0,
+        sliderOffset: 0,
+        sliderLeft: 0,
+        inputShowed: false,
+        inputVal: '',
+        switchcheck: false,
+        common: [],
+        devices: []
+      };
+
+      methods = {
+        tabClick (e) {
+          this.sliderOffset = e.currentTarget.offsetLeft
+          this.activeIndex = e.currentTarget.id
+          wepy.request({
+            url: 'https://baidusmarthomeforff.cn/apiv1/devices',
+            method: 'GET',
+            header: {
+              'Wx-Session-Token': '*',
+              'content-type': 'application/json'
+            },
+            success: function(res) {
+              console.log(res)
+            },
+            fail: function(res) {
+              console.log('failed!')
+            }
+          })
+        },
+        showInput () {
+          this.inputShowed = true
+        },
+        hideInput () {
+          this.inputVal = ''
+          this.inputShowed = false
+        },
+        clearInput () {
+          this.inputVal = ''
+        },
+        inputTyping (e) {
+          this.inputVal = e.detail.value
+        },
+        tapToDevice(url) {
+          console.log(url)
+          this.$navigate(url, {title: '设备'})
+        },
+        add_device() {
+          this.$navigate('./add_device')
+        }
+      }
+
+      onLoad(options) {
+        var that = this
+        wepy.getSystemInfo({
+          success: function (res) {
+            that.setData({
+              windowWidth: res.windowWidth + 'px',
+              windowHeight: res.windowHeight + 'px'
+            })
+          }
+        })
+        var tag = options.str
+        console.log('tag', tag)
+        if (tag === 'devices') {
+          this.data.activeIndex = 0
+        } else {
+          this.data.activeIndex = 1
+        }
+
+        console.log('deviceList onload')
+        wepy.request({
+          url: 'https://baidusmarthomeforff.cn/apiv1/devices',
+          method: 'GET',
+          header: {
+            'Wx-Session-Token': '*',
+            'content-type': 'application/json'
+          },
+          success: function(res) {
+            var list = res.data.data.deviceList
+            console.log('deviceList', list)
+            /** that.data.devices = res.data.data.deviceList **/
+            /** prepare the name and img list **/
+            var detail = [
+              {deviceName: '智能网关', deviceImg: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1530119248548&di=8dbc3e9ee43500fcb3bb94c741315ce7&imgtype=0&src=http%3A%2F%2Fimg13.360buyimg.com%2Fn1%2Fjfs%2Ft3967%2F151%2F1645827853%2F183667%2Fc66789af%2F588190a6N0d9c1cf2.jpg', nextPage: './device_light'},
+              {deviceName: '温湿度计', deviceImg: 'https://free.modao.cc/uploads3/images/1945/19454899/thumb_raw_1524719671.png', nextPage: './device_sensor'},
+              {deviceName: '门窗传感器', deviceImg: 'https://free.modao.cc/uploads3/images/1945/19454911/thumb_raw_1524719694.png', nextPage: './device_doorsensor'},
+              {deviceName: '智能插座', deviceImg: 'https://free.modao.cc/uploads3/images/1945/19454844/thumb_raw_1524719555.png', nextPage: './device_plug'}
+            ]
+            var len = detail.length
+            /** set data **/
+            for (var index = 0; index < len; index++) {
+              var param = {}
+              var string = 'devices[' + index + '].deviceName'
+              var string2 = 'devices[' + index + '].deviceImg'
+              var string3 = 'devices[' + index + '].nextPage'
+              param[string] = detail[index].deviceName
+              that.setData(param)
+              param[string2] = detail[index].deviceImg
+              that.setData(param)
+              param[string3] = detail[index].nextPage
+              that.setData(param)
+              if (index < len / 2) {
+                string = 'common[' + index + '].deviceName'
+                string2 = 'common[' + index + '].deviceImg'
+                string3 = 'common[' + index + '].nextPage'
+                param[string] = detail[index].deviceName
+                that.setData(param)
+                param[string2] = detail[index].deviceImg
+                that.setData(param)
+                param[string3] = detail[index].nextPage
+                that.setData(param)
+              }
+            }
+            console.log(that.data)
+          },
+          fail: function(res) {
+            console.log('failed to load!')
+          }
+        })
+      }
+    }
+</script>

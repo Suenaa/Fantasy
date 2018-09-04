@@ -1,0 +1,138 @@
+<style lang="less">
+  page {
+    background-color: #F8F8F8;
+  }
+
+  .userinfo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .userinfo-avatar {
+    width: 136rpx;
+    height: 136rpx;
+    margin: 20rpx;
+    border-radius: 50%;
+    overflow: hidden;
+  }
+
+  .userinfo-nickname {
+    color: #aaa;
+  }
+
+  .setting-list{
+    display: flex;
+    width: 100%;
+    height: 100rpx;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e5e5e5;
+    align-items: center;
+  }
+
+  .iconfont {
+    font-family:"iconfont" !important;
+    font-size:16px;
+    font-style:normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .icon-right {
+    color: #cbcbd0;
+    margin: 0 30rpx; 
+    flex: 0 0 26rpx;
+  }
+
+  .text-h3 {
+    margin-left: 32rpx;
+  }
+
+  .setting-list .warp {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .setting-list .warp > switch{
+    margin-right: 30rpx;
+  }
+</style>
+
+<template>
+  <view class="container">
+    <view class="userinfo">
+      <block>
+        <open-data class="userinfo-avatar" type="userAvatarUrl"></open-data>
+        <open-data type="userNickName" lang="zh_CN" class="userinfo-nickname"></open-data>
+      </block>
+    </view>
+    <view class="setting-list" style='margin-top: 40rpx;' @tap.stop='goToSecurity'>
+      <view class='warp'>
+        <text class='text-h3'>安全设置</text>
+        <text class='icon-right'>></text>
+      </view>
+    </view>
+
+    <view class="setting-list" style='margin-top:0px;' @tap.stop='goToDevice'>
+      <view class='warp'>
+        <text class='text-h3'>管理设备</text>
+        <text class='icon-right'>></text>
+      </view>
+    </view>
+
+    <view class="setting-list" style='margin-top: 0px;' @tap.stop='goToLearning'>
+      <view class='warp'>
+        <text class='text-h3'>命令学习</text>
+        <text class='icon-right'>></text>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class setting extends wepy.page {
+    config = {
+      navigationBarTitleText: '设置'
+    }
+
+    components = {
+
+    }
+
+    data = {
+      // userInfo: {},
+      // hasUserInfo: true
+    }
+
+    methods = {
+      goToSecurity() {
+        this.$navigate('./security')
+      },
+      goToDevice() {
+        this.$navigate('./devices')
+      },
+      goToLearning() {
+        this.$navigate('./learning')
+      }
+    }
+
+    async onLoad() {
+      // let self = this
+      // self.userInfo = self.$parent.globalData.userInfo
+      // self.hasUserInfo = true
+      // self.$apply()
+      // self.$parent.getUserInfo(function (userInfo) {
+        // if (userInfo) {
+          // self.hasUserInfo = true
+          // self.userInfo = userInfo
+        // }
+        // self.$apply()
+      // })
+    }
+  }
+</script>
